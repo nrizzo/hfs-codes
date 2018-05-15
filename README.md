@@ -11,5 +11,9 @@ Qualche considerazione (da dimostrare):
  - dato n, la sua rappresentazione in base 2 richiede floor(log\_2 n)+1 cifre; quindi il sistema per h\_n contiene al massimo altrettante equazioni; il minimo invece si ottiene se n è il risultato di una tetrazione (elevamento iterato a potenza) di 2 (può essere espresso in funzione dell'inversa della funzione di Ackermann? Notazione di Knuth?);
  - se rappresentiamo il sistema per h\_n come un DAG connesso (l'ordine naturale decrescente degli elementi li dispone già in un ordinamento topologico!), il numero di archi potrebbe essere O((log\_2 n) * log\_2 (log\_2 n)) (intuitivamente si può spiegare contando in base 2 da 0 a log\_2 (log\_2 n))
 
+Una possibile soluzione per la costruzione del DAG potrebbe basarsi su una coda (un semplice array) in cui gli elementi da processare sono nodi del DAG in costruzione, disposti in ordine decrescente rispetto all'intero corrispondente all'insieme; un algoritmo potrebbe, iterativamente, prendere il primo nodo della coda, calcolarne i discendenti in ordine decrescente e con un merge lineare (ottimizzabile) creare i nodi dei discendenti se non esistono, aggiungere i dovuti archi e inserirli nella coda, fino ad esaurimento.
+
 ### Approssimazione della variante della codifica di Ackermann
-L'indice di condizionamento della composizione iterata di f(x)=2^(-x) sembra stabilizzarsi (molto bene) dopo la prima iterazione ad un valore più piccolo di 3 per valori ragionevoli.
+Considerazioni:
+ - l'indice di condizionamento della composizione iterata di f(x)=2^(-x) sembra stabilizzarsi (molto bene) dopo la prima iterazione ad un valore più piccolo di 3 per valori ragionevoli;
+ - va studiata la propagazione dell'errore assoluto nel calcolo di somma e approssimazione di 2^(-x), dati valori con un certo errore; una volta ottenuto il DAG, conoscendo l'errore massimo relativo tollerato si potrebbe scorrere dall'alto verso il basso, aggiornando la precisione richiesta ad ogni singolo nodo.
