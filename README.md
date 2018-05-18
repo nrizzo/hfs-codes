@@ -15,5 +15,6 @@ Una possibile soluzione per la costruzione del DAG potrebbe basarsi su una coda 
 
 ### Approssimazione della variante della codifica di Ackermann
 Considerazioni:
- - l'indice di condizionamento della composizione iterata di f(x)=2^(-x) sembra stabilizzarsi (molto bene) dopo la prima iterazione ad un valore più piccolo di 3 per valori ragionevoli;
- - va studiata la propagazione dell'errore assoluto nel calcolo di somma e approssimazione di 2^(-x), dati valori con un certo errore; una volta ottenuto il DAG, conoscendo l'errore massimo relativo tollerato si potrebbe scorrere dall'alto verso il basso, aggiornando la precisione richiesta ad ogni singolo nodo.
+ - l'errore che ci interessa è assoluto, non relativo; dato y che approssima x, esso è preciso fino a k cifre dopo la virgola se y=x+e, con 0\<e\<2^(-k); in altri termini, dato x' = x + 2^-(k+1), y = x'+err, con |err|<2^(k+1);
+ - va studiata la propagazione e l'introduzione di errori (assoluti) nel calcolo della variante della codifica di Ackermann (errore inerente, analitico e algoritmico?); in particolare bisognerà studiare le operazioni atomiche (somma, moltiplicazione, divisione/reciproco) e il troncamento della serie di Taylor per 2^(-x);
+ - una volta ottenuto il DAG, conoscendo l'errore massimo relativo tollerato si potrebbe stimare e tenere sotto controllo il propagarsi dell'errore dalle foglie alla radice; in caso risulti complesso o impratico, la computazione sul DAG va strutturata in modo da poter migliorare la precisione iterativamente, fino a poter assegnare ad ogni nodo un valore differente.
