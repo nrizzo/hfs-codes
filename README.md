@@ -15,8 +15,12 @@ Una possibile soluzione per la costruzione del DAG potrebbe basarsi su una coda 
 
 ### Approssimazione della variante della codifica di Ackermann
 Considerazioni:
- - l'errore che ci interessa è assoluto, non relativo; il modello dell'approssimazione di un numero reale, approssimazione precisa fino ad un certo numero di cifre binarie (dopo la virgola), potrebbe essere modellata da due interi;
- - ma la propagazione e l'introduzione di errori di calcolo può rivelarsi insidiosa: anche una semplice somma di dati così approssimati può portare ad incertezza su un numero di cifre difficilmente stimabile prima di effettuare la computazione (alcune serie di interi interessanti a riguardo sono la A001511, cioè la lunghezza massima del suffisso di soli 0 nella rappresentazione binaria, la A091090, numero di cifre binarie modificate dall'incremento unitario);
- - una soluzione pratica potrebbe basarsi sul concetto di intervallo: sapendo che un numero reale sta in un determinato intervallo (i cui estremi possono essere inclusi come no), questo numero presenta come prime cifre binarie il prefisso in comune dei due estremi (se esistente)?
- - va studiata la propagazione e l'introduzione di errori (assoluti) nel calcolo della variante della codifica di Ackermann (errore inerente, analitico e algoritmico?); in particolare bisognerà studiare le operazioni atomiche (somma, moltiplicazione, divisione/reciproco) e il troncamento della serie di Taylor per 2^(-x);
+ - una soluzione pratica, alternativa al concetto di errore, potrebbe basarsi sul concetto di intervallo: sapendo che un numero reale sta in un determinato intervallo (i cui estremi possono essere inclusi come no), questo numero presenta come prime cifre binarie il prefisso in comune dei due estremi (se esiste)?
+ - la propagazione e l'introduzione di errori di calcolo può rivelarsi insidiosa: anche una semplice somma di dati così approssimati può portare ad incertezza su un numero di cifre difficilmente stimabile prima di effettuare la computazione (alcune serie di interi interessanti a riguardo sono la A001511, cioè la lunghezza massima del suffisso di soli 0 nella rappresentazione binaria, la A091090, numero di cifre binarie modificate dall'incremento unitario);
  - una volta ottenuto il DAG, conoscendo l'errore massimo relativo tollerato si potrebbe stimare e tenere sotto controllo il propagarsi dell'errore dalle foglie alla radice; in caso risulti complesso o impratico, la computazione sul DAG va strutturata in modo da poter migliorare la precisione iterativamente, fino a poter assegnare ad ogni nodo un valore differente.
+
+## Scaletta
+ - implementare un tipo di dato per numeri naturali arbitrariamente grandi;
+ - implementare un tipo di dato per numeri razionali arbitrariamente precisi;
+ - scrivere e implementare un algoritmo per la creazione di sistemi di equazioni(insiemistiche) per insiemi ereditariamente finiti;
+ - scrivere e implementare un algoritmo per il calcolo, preciso a piacere, della radice del sistema di equazioni.
