@@ -1,8 +1,8 @@
 /*
  * github.com/nrizzo
  *
- * Implementazione della libreria per la creazione e le operazioni aritmetiche
- * su numeri naturali di grandezza arbitraria.
+ * Implementazione della libreria per creazione e operazioni aritmetiche di
+ * numeri naturali di grandezza arbitraria.
  */
 
 #include <stdlib.h> /* malloc e free */
@@ -22,14 +22,14 @@ uint32_t min(uint32_t a, uint32_t b);
 
 /*
  * digit, dato il puntatore ad un bignat u, restituisce l'(i+1)-esima cifra meno
- * significativa (anche quando i > u->n).
+ * significativa (in base 2^32), anche quando l'indice i supera u->n - 1.
  */
 static uint32_t digit(struct bignat *u, uint32_t i);
 
 /*
- * normalize, dato il puntatore ad un bigint, ne corregge la rappresentazione
- * se errata, rimuovendo le cifre nulle più significative (ad eccezione dello
- * zero).
+ * normalize, dato il puntatore ad un bignat, ne corregge la rappresentazione
+ * se errata, rimuovendo le cifre nulle più significative, se di indice
+ * superiore a 0.
  */
 static void normalize(struct bignat *u);
 
@@ -72,6 +72,34 @@ struct bignat *bn_fromuint64(uint64_t i)
 	return u;
 }
 
+struct bignat *bn_fromstring32(char *s)
+{
+	struct bignat *u = bn_zero();
+	struct bignat *two = bn_fromuint32(2);
+	struct bignat *one = bn_fromuint32(1);
+	struct bignat *t;
+	int bits;
+
+	bits = 0;
+	for (int i = 0; s[i] != '\0'; i++) {
+		t = bn_mul(u,two); bn_destroy(u); u = t;
+
+		if (s[i] != '0') {
+			t = bn_add(u,one); bn_destroy(u); u = t;
+		}
+		bits++;
+	}
+
+	while (bits % 32 != 0) {
+		t = bn_mul(u,two); bn_destroy(u); u = t;
+		bits++;
+	}
+
+	bn_destroy(two);
+	bn_destroy(one);
+	return u;
+}
+
 struct bignat *bn_copy(struct bignat *u)
 {
 	struct bignat *c;
@@ -79,6 +107,7 @@ struct bignat *bn_copy(struct bignat *u)
 	c = malloc(sizeof(struct bignat));
 	c->n = u->n;
 	c->u = malloc(sizeof(uint32_t)*c->n);
+
 	for (uint32_t i = 0; i < c->n; i++)
 		c->u[i] = u->u[i];
 
@@ -87,21 +116,17 @@ struct bignat *bn_copy(struct bignat *u)
 
 uint64_t bn_bits(struct bignat *u)
 {
-	uint64_t bits;
-	char index; /* indice del primo bit != 0 (dal più significativo) */
+	uint64_t res;
+	char i; /* indice primo bit != 0 (dal più significativo) */
 
-	bits = (u->n - 1) * 32; /* 32 per ogni uint32_t tranne l'ultimo */
-	
-	index = 0;
-	while (index < 32 && !(u->u[u->n-1]>>(31-index)&1))
-		index = index + 1;
-
-	bits = bits + (32 - index); /* bit ultimo uint32_t */
-
-	if (bits == 0) /* u == 0 */
+	if (u->n == 1 && u->u[0] == 0) /* controllo zero */
 		return 1;
-	else
-		return bits;
+
+	res = (u->n - 1) * 32; /* 32 per ogni uint32_t tranne l'ultimo */
+	for (i = 0; i < 32 && !(u->u[u->n-1] >> (31-i)&1); i++) {}
+	res += 32 - i; /* bit ultimo uint32_t */
+
+	return res;
 }
 
 char bn_get(struct bignat *u, uint64_t i)
@@ -114,17 +139,25 @@ char bn_get(struct bignat *u, uint64_t i)
 
 int bn_cmp(struct bignat *u, struct bignat *v)
 {
-	/* u,v normalizzati */
-
 	if (u->n > v->n)
-		return 1;
+		return +1;
 	if (u->n < v->n)
 		return -1;
-	if (u->u[u->n-1] > v->u[v->n-1])
-		return 1;
-	if (u->u[u->n-1] < v->u[v->n-1])
-		return -1;
+
+	/* u->n == v->n */
+	for (uint32_t i = u->n - 1; i < UINT32_MAX; i--) {
+		if (u->u[i] > v->u[i])
+			return +1;
+		if (u->u[i] < v->u[i])
+			return -1;
+	}
+
 	return 0;
+}
+
+char bn_iszero(struct bignat *u)
+{
+	return (u->n == 1 && u->u[0] == 0);
 }
 
 struct bignat *bn_succ(struct bignat *u)
@@ -142,7 +175,7 @@ struct bignat *bn_succ(struct bignat *u)
 
 	if (k == 1) {
 		s->n = s->n + 1;
-		s->u = realloc(s->u,sizeof(uint32_t)*s->n);
+		s->u = realloc(s->u, sizeof(uint32_t)*s->n);
 		s->u[s->n - 1] =  1;
 	}
 
@@ -167,7 +200,7 @@ struct bignat *bn_pred(struct bignat *u)
 
 	if (k == -1) {
 		p->n = p->n + 1;
-		p->u = realloc(p->u,sizeof(uint32_t)*p->n);
+		p->u = realloc(p->u, sizeof(uint32_t)*p->n);
 		p->u[p->n - 1] =  1;
 	}
 
@@ -256,7 +289,8 @@ void bn_print(struct bignat *u)
 void bn_print_hex(struct bignat *u)
 {
 	for (uint32_t i = u->n-1; i > 0; i--)
-		printf("%.8" PRIX32, u->u[i]);
+		printf("%.8" PRIX32 " ", u->u[i]);
+
 	printf("%.8" PRIX32, u->u[0]);
 }
 
@@ -286,6 +320,28 @@ struct bignat *bn_scan()
 
 struct bignat *bn_div_uint32(struct bignat *u, uint32_t n)
 {
+	struct bignat *res; /* risultato */
+	uint64_t d; /* resto parziale */
+
+	res = malloc(sizeof(struct bignat));
+	res->n = u->n;
+	res->u = malloc(sizeof(uint32_t)*res->n);
+
+	d = 0;
+	for (uint32_t i = res->n - 1; i < UINT32_MAX; i--) {
+		d = d<<32;
+		d = d + u->u[i];
+
+		res->u[i] = (uint32_t) (d / (uint64_t) n);
+		d = d % (uint64_t) n;
+	}
+
+	normalize(res);
+	return res;
+}
+
+uint32_t bn_rem_uint32(struct bignat *u, uint32_t n)
+{
 	struct bignat *qq;
 	int j;
 	uint32_t q,r;
@@ -308,7 +364,9 @@ struct bignat *bn_div_uint32(struct bignat *u, uint32_t n)
 	} while (j >= 0);
 
 	normalize(qq);
-	return qq;
+	bn_destroy(qq);
+
+	return (uint32_t) d;
 }
 
 char bn_remcheck_uint32(struct bignat *u, uint32_t n)
@@ -339,6 +397,7 @@ char bn_remcheck_uint32(struct bignat *u, uint32_t n)
 
 	return (d != 0);
 }
+
 void bn_destroy(struct bignat *u)
 {
 	free(u->u);
@@ -364,22 +423,20 @@ uint32_t min(uint32_t a, uint32_t b)
 
 static uint32_t digit(struct bignat *u, uint32_t i)
 {
-	if (i <= u->n)
+	if (i <= u->n - 1)
 		return u->u[i];
 	else
 		return 0;
 }
-void normalize(struct bignat *u)
+
+static void normalize(struct bignat *u)
 {
-	uint32_t j; /* cifra più significativa > 0 */
+	uint32_t j; /* cifra più significativa non nulla */
 
 	if (u->n == 1 || u->u[u->n-1] > 0)
 		return;
 
-	j = u->n - 1;
-	while (u->u[j] == 0 && j > 0)
-		j--;
-
+	for (j = u->n - 1; u->u[j] == 0 && j > 0; j--) {}
 	u->n = j + 1;
 	u->u = realloc(u->u, sizeof(uint32_t)*(u->n));
 }

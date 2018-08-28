@@ -1,8 +1,8 @@
 /*
  * github.com/nrizzo
  *
- * Intestazione della libreria per la creazione e le operazioni aritmetiche su
- * numeri naturali di grandezza arbitraria.
+ * Intestazione della libreria per creazione e operazioni aritmetiche di numeri
+ * naturali di grandezza arbitraria.
  */
 
 #ifndef BNGUARD /* guardia */
@@ -32,7 +32,27 @@ struct bignat *bn_zero();
  * dall'argomento i; va accoppiata a bn_destroy per liberare lo spazio occupato.
  */
 struct bignat *bn_fromuint32(uint32_t i);
+
+/*
+ * bn_fromuint32 crea e restituisce il puntatore al bignat rappresentato
+ * dall'argomento i; va accoppiata a bn_destroy per liberare lo spazio occupato.
+ */
 struct bignat *bn_fromuint64(uint64_t i);
+
+/*
+ * bn_fromstring crea e restituisce il puntatore al bignat rappresentato dalla
+ * stringa s; non modifica s, va accoppiata a bn_destroy per liberare lo spazio
+ * occupato.
+ */
+struct bignat *bn_fromstring(char *s);
+
+/*
+ * bn_fromstring32 crea e restituisce il puntatore al bignat rappresentato dalla
+ * stringa s, aggiungendo eventuali zeri fino a raggiungere un multiplo di 32;
+ * non modifica s, va accoppiata a bn_destroy per liberare lo spazio
+ * occupato.
+ */
+struct bignat *bn_fromstring32(char *s);
 
 /*
  * bn_copy crea e restituisce una copia del bignat passato come argomento; va
@@ -58,6 +78,11 @@ char bn_get(struct bignat *u, uint64_t i);
  */
 int bn_cmp(struct bignat *u, struct bignat *v);
 
+/*
+ * bn_iszero, dato il bignat u, restituisce 1 se questo rappresenta lo zero,
+ * 0 altrimenti.
+ */
+char bn_iszero(struct bignat *u);
 /* 
  * bn_succ e bn_pred, dato il puntatore ad un bignat, creano e restituiscono
  * il bignat che rappresenta il numero naturale rispettivamente successivo e
@@ -97,12 +122,18 @@ struct bignat *bn_mul(struct bignat *u, struct bignat *v);
 struct bignat *bn_div_uint32(struct bignat *u, uint32_t n);
 
 /*
+ * bn_remcheck_uint32, dato il bignat u e l'intero i, restituisce 1 se il bignat
+ * la divisione intera di u / i ha resto diverso da 0, 0 altrimenti; non
+ * modifica u.
+ */
+char bn_remcheck_uint32(struct bignat *u, uint32_t n);
+
+/*
  * bn_rem_uint32, dato il bignat u e l'intero i, crea e restituisce il bignat
  * rappresentante il resto della divisione intera di u / i; non modifica u e va
  * accoppiata a bn_destroy per liberarne lo spazio.
  */
-char bn_remcheck_uint32(struct bignat *u, uint32_t n);
-
+uint32_t bn_rem_uint32(struct bignat *u, uint32_t n);
 /*
  * bn_print stampa sullo standard output la rappresentazione in base 2 del
  * bignat passato come argomento.

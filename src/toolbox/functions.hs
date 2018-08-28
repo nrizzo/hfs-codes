@@ -37,4 +37,6 @@ onescount [] = 0
 onescount ('1':xs) = 1 + onescount xs
 onescount (_:xs) = onescount xs
 
+tetr 0 = 1
+tetr x = exp 2 
 -- [ onescount (hfsmask x) | x <- [0..50] ] --
