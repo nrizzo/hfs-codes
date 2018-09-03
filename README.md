@@ -20,7 +20,3 @@ Considerazioni:
  - una volta ottenuto il DAG, conoscendo l'errore massimo relativo tollerato si potrebbe stimare e tenere sotto controllo il propagarsi dell'errore dalle foglie alla radice; in caso risulti complesso o impratico, la computazione sul DAG va strutturata in modo da poter migliorare la precisione iterativamente, fino a poter assegnare ad ogni nodo un valore differente.
 
 ## Scaletta
- - implementare un tipo di dato per numeri naturali arbitrariamente grandi;
- - implementare un tipo di dato per numeri razionali arbitrariamente precisi;
- - scrivere e implementare un algoritmo per la creazione di sistemi di equazioni(insiemistiche) per insiemi ereditariamente finiti;
- - scrivere e implementare un algoritmo per il calcolo, preciso a piacere, della radice del sistema di equazioni.

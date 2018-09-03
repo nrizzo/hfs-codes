@@ -68,6 +68,12 @@ void interval_print(struct interval *X);
 void interval_print_common_prefix(struct interval *X);
 
 /*
+ * interval_accuracy, dato l'intervallo X, restituisce la posizione dell'ultima
+ * cifra binaria in comune degli estremi di X.
+ */
+long long int interval_accuracy(struct interval *X);
+
+/*
  * interval_destroy libera lo spazio occupato dall'interval X e da tutte le sue
  * componenti.
  */

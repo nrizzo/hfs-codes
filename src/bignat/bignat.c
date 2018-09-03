@@ -433,9 +433,6 @@ static void normalize(struct bignat *u)
 {
 	uint32_t j; /* cifra più significativa non nulla */
 
-	if (u->n == 1 || u->u[u->n-1] > 0)
-		return;
-
 	for (j = u->n - 1; u->u[j] == 0 && j > 0; j--) {}
 	u->n = j + 1;
 	u->u = realloc(u->u, sizeof(uint32_t)*(u->n));

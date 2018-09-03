@@ -177,6 +177,13 @@ void bf_print_hex(struct bigfloat *f);
 void bf_print_common_prefix(struct bigfloat *f, struct bigfloat *g);
 
 /*
+ * bf_accuracy, dati i puntatori ai bigfloat f e g, restituisce l'indice
+ * della potenza di due meno significativa in comune alla rappresentazione
+ * binaria di f e g.
+ */
+long long int bf_accuracy(struct bigfloat *f, struct bigfloat *g);
+
+/*
  * bf_destroy libera lo spazio occupato da una delle chiamate che creano
  * bigfloat.
  */

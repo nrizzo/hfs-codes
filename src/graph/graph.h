@@ -14,7 +14,9 @@
 
 /*
  * Struct che rappresenta il grafo di appartenenza di un insieme ereditariamente
- * finito; gli archi sono contenuti nelle liste di adiacenza dei singoli nodi.
+ * finito; gli archi sono contenuti nelle liste di adiacenza dei singoli nodi,
+ * mentre nelle due list V e xx i vertici sono salvati da quello con codice di
+ * Ackermann maggiore al minore.
  */
 struct graph {
 	struct dl_list_n *V; /* lista dei vertici */
@@ -25,13 +27,14 @@ struct graph {
 /*
  * graph_create, data la lista dei codici di Ackermann dei figli di x (bignat),
  * crea e restituisce il puntatore al grafo inizializzato con i nodi dei soli
- * figli di x, senza continuare la costruzione.
+ * figli di x, senza continuare la costruzione; dei bignat vengono salvati i
+ * puntatori.
  */
 struct graph *graph_create(struct dl_list_b *s);
 
 /*
- * graph_build, dato un grafo inizializzato da graph_create, costruisce il
- * grafo di appartenenza.
+ * graph_build, dato un grafo inizializzato da graph_create, termina la
+ * costruzione del grafo di appartenenza.
  */
 void graph_build(struct graph *G);
 

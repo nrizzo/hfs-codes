@@ -528,6 +528,39 @@ void bf_print_common_prefix(struct bigfloat *f, struct bigfloat *g)
 	printf("(2^32)^%"PRId32"",f->e + f->m->n);
 }
 
+long long int bf_accuracy(struct bigfloat *f, struct bigfloat *g)
+{
+	uint64_t e;
+	struct bignat *u, *v; /* addendi parziali */
+	uint64_t i;
+
+	if (f->e < g->e) {
+		u = bn_copy(f->m);
+		v = bn_lshift(g->m, g->e - f->e);
+		e = f->e;
+	} else if (f->e > g->e) {
+		u = bn_lshift(f->m, f->e - g->e);
+		v = bn_copy(g->m);
+		e = g->e;
+	} else {
+		u = bn_copy(f->m);
+		v = bn_copy(g->m);
+		e = f->e;
+	}
+
+	if (bn_bits(u) >= bn_bits(v))
+		i = bn_bits(u);
+	else
+		i = bn_bits(v);
+
+	while (i > 0 && bn_get(u, i) == bn_get(v, i)) i--;
+
+	bn_destroy(u);
+	bn_destroy(v);
+
+	return (e * 32) + i;
+}
+
 void bf_destroy(struct bigfloat *f)
 {
 	bn_destroy(f->m);
@@ -579,11 +612,10 @@ static struct bignat *bn_rshift(struct bignat *u, uint32_t n)
 
 static void normalize(struct bigfloat *f)
 {
-	unsigned long int i;
+	unsigned long int i; /* indice cifra meno significativa non nulla */
 	struct bignat *tbn;
 
-	/* controllo zero */
-	if (bn_iszero(f->m)) {
+	if (bn_iszero(f->m)) { /* controllo zero */
 		bn_destroy(f->m);
 		f->sign = 1;
 		f->m = bn_zero();
@@ -591,14 +623,13 @@ static void normalize(struct bigfloat *f)
 		return;
 	}
 
-	i = 0;
-	while (f->m->u[i] == 0 && i < f->m->n)
-		i++;
+	for (i = 0; f->m->u[i] == 0 && i < f->m->n; i++) {}
 
 	if (i > 0) {
 		tbn = f->m;
 		f->m = bn_rshift(f->m, i);
 		bn_destroy(tbn);
-		f->e = f->e + i;
+
+		f->e += i;
 	}
 }

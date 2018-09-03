@@ -15,13 +15,33 @@
 #include "node/node.h"
 #include "graph.h"
 
-/* restituisce l'(i+1)-esimo bit meno significativo di n */
-char uint64_get(uint64_t n, char i);
+/* Dichiarazioni funzioni ausiliarie */
+/*
+ * children, dato il nodo di un grafo di appartenenza in costruzione, crea e
+ * restituisce la lista dei bignat rappresentanti i codici dei figli del nodo;
+ * la lista va eliminata da dllb_destroy, i bignat vanno trattati dalla
+ * procedura join.
+ */
 static struct dl_list_b *children(struct node *x);
+
+/*
+ * join, data la lista V dei vertici di un grafo di appartenenza in costruzione,
+ * il nodo x e la lista l dei codici dei figli di x, si occupa di aggiungere
+ * i nodi (se non presenti) e gli archi collegati ai figli di x, restituendo
+ * la lista dei vertici aggiornata; elimina o salva i puntatori ai bignat di l.
+ */
 static struct dl_list_n *join(struct dl_list_n *V, struct node *x,
 	struct dl_list_b *l);
-static void calcrackrec(struct node *x, long long de, long long dn,
+
+/*
+ * calcrack, dati il nodo x di un grafo di appartenenza in costruzione, sui
+ * figli di cui è già stata chiamata calcrack, e gli interi de, dn e da, calcola
+ * l'approssimazione del codice della variante di Ackermann di x con le opzioni
+ * specificate dagli interi.
+ */
+static void calcrack(struct node *x, long long de, long long dn,
 	long long da);
+
 
 struct graph *graph_create(struct dl_list_b *u)
 {
@@ -32,6 +52,7 @@ struct graph *graph_create(struct dl_list_b *u)
 	G = malloc(sizeof(struct graph));
 	G->V = dlln_create();
 	G->xx = dlln_create();
+	G->rcode = NULL;
 
 	scan = dllb_last(u);
 	while (!dllb_isempty(scan)) {
@@ -57,8 +78,8 @@ void graph_build(struct graph *G)
 
 		l = children(x);
 		G->V = join(G->V, x, l);
-
 		dllb_destroy(l);
+
 		scan = dlln_next(scan);
 	}
 }
@@ -72,60 +93,11 @@ void graph_calcrack(struct graph *G, long long de, long long dn, long long da)
 	l = dlln_last(G->V);
 	while (!dlln_isempty(l)) {
 		x = dlln_get(l);
-		calcrackrec(x, de, dn, da);
+
+		calcrack(x, de, dn, da);
+
 		l = dlln_prev(l);
 	}
-
-	/*struct interval *rcode = interval_zero();
-	struct interval *t;
-
-	l = dlln_last(G->xx);
-	while (!dlln_isempty(l)) {
-		i = interval_rec_exp_2(dlln_get(l)->rcode, de, dn, da);
-
-		t = rcode;
-		rcode = interval_add(rcode, i);
-		interval_destroy(t);
-
-		interval_destroy(i);
-		l = dlln_prev(l);
-	}*/
-}
-
-static void calcrackrec(struct node *x, long long de, long long dn,
-	long long da)
-{
-		if (x->rcode != NULL)
-		return;
-
-	struct interval *res;
-	struct interval *i, *t;
-	struct dl_list_n *l;
-	struct node *y;
-
-	res = interval_zero();
-
-	if (dlln_isempty(x->adj)) {
-		x->rcode = res;
-		return;
-	}
-
-	l = x->adj;
-	while (!dlln_isempty(l)) {
-		y = dlln_get(l);
-
-		//calcrackrec(y,de,dn,da);
-		i = interval_rec_exp_2(y->rcode, de, dn, da);
-
-		t = res;
-		res = interval_add(res, i);
-		interval_destroy(t);
-
-		interval_destroy(i);
-		l = dlln_next(l);
-	}
-
-	x->rcode = res;
 }
 
 void graph_printDOT(struct graph *G)
@@ -169,21 +141,33 @@ void graph_printDOT(struct graph *G)
 
 void graph_destroy(struct graph *G)
 {
+	struct dl_list_n *scan;
+	struct node *x;
 
+	scan = G->V;
+	while (!dlln_isempty(scan)) {
+		x = dlln_get(scan);
+
+		node_destroy(x);
+		
+		scan = dlln_next(scan);
+	}
+
+	dlln_destroy(G->V);
+	dlln_destroy(G->xx);
+
+	if (G->rcode != NULL)
+		interval_destroy(G->rcode);
+
+	free(G);
 }
 
 /* Implementazione funzioni ausiliarie */
-char uint64_get(uint64_t n, char i)
-{
-	/* 0 <= i < 63 */
-	return (char) ((n>>i)&1);
-}
-
 static struct dl_list_b *children(struct node *v)
 {
 	struct dl_list_b *l = dllb_create();
 	struct bignat *c; /* contatore */
-	struct bignat *temp;
+	struct bignat *tbn;
 	struct bignat *code = v->code;
 
 	c = bn_fromuint64(bn_bits(code)-1);
@@ -192,9 +176,9 @@ static struct dl_list_b *children(struct node *v)
 			l = dllb_add(l, c);
 			c = bn_pred(c);
 		} else {
-			temp = bn_pred(c);
-			bn_destroy(c);
-			c = temp;
+			tbn = c;
+			c = bn_pred(c);
+			bn_destroy(tbn);
 		}
 	}
 
@@ -233,4 +217,40 @@ static struct dl_list_n *join(struct dl_list_n *V, struct node *x,
 	}
 
 	return V;
+}
+
+static void calcrack(struct node *x, long long de, long long dn,
+	long long da)
+{
+	if (x->rcode != NULL)
+		return;
+
+	struct interval *res;
+	struct interval *i, *t;
+	struct dl_list_n *l;
+	struct node *y;
+
+	res = interval_zero();
+
+	if (dlln_isempty(x->adj)) {
+		x->rcode = res;
+		return;
+	}
+
+	l = x->adj;
+	while (!dlln_isempty(l)) {
+		y = dlln_get(l);
+
+		//calcrack(y,de,dn,da);
+		i = interval_rec_exp_2(y->rcode, de, dn, da);
+
+		t = res;
+		res = interval_add(res, i);
+		interval_destroy(t);
+
+		interval_destroy(i);
+		l = dlln_next(l);
+	}
+
+	x->rcode = res;
 }

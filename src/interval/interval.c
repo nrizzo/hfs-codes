@@ -136,6 +136,11 @@ void interval_print(struct interval *X)
 		printf(")");
 }
 
+long long int interval_accuracy(struct interval *X)
+{
+	return bf_accuracy(X->min, X->max);
+}
+
 void interval_destroy(struct interval *X)
 {
 	bf_destroy(X->min);

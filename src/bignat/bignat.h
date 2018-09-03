@@ -83,6 +83,7 @@ int bn_cmp(struct bignat *u, struct bignat *v);
  * 0 altrimenti.
  */
 char bn_iszero(struct bignat *u);
+
 /* 
  * bn_succ e bn_pred, dato il puntatore ad un bignat, creano e restituiscono
  * il bignat che rappresenta il numero naturale rispettivamente successivo e
