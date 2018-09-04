@@ -25,10 +25,10 @@ struct graph {
 };
 
 /*
- * graph_create, data la lista dei codici di Ackermann dei figli di x (bignat),
- * crea e restituisce il puntatore al grafo inizializzato con i nodi dei soli
- * figli di x, senza continuare la costruzione; dei bignat vengono salvati i
- * puntatori.
+ * graph_create, data la lista dei codici di Ackermann dei figli di x (bignat)
+ * ordinati dal codice più piccolo al più grande, crea e restituisce il
+ * puntatore al grafo inizializzato con i nodi dei soli figli di x, senza
+ * continuare la costruzione; dei bignat vengono salvati i puntatori.
  */
 struct graph *graph_create(struct dl_list_b *s);
 

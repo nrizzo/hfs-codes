@@ -18,9 +18,9 @@
 /* Dichiarazioni funzioni ausiliarie */
 /*
  * children, dato il nodo di un grafo di appartenenza in costruzione, crea e
- * restituisce la lista dei bignat rappresentanti i codici dei figli del nodo;
- * la lista va eliminata da dllb_destroy, i bignat vanno trattati dalla
- * procedura join.
+ * restituisce la lista dei bignat rappresentanti i codici dei figli del nodo,
+ * ordinati dal più piccolo al più grande; la lista va eliminata da
+ * dllb_destroy, i bignat vengono trattati dalla procedura join.
  */
 static struct dl_list_b *children(struct node *x);
 
