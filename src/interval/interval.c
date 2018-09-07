@@ -208,12 +208,14 @@ struct bigfloat *rec_exp_2_max(struct bigfloat *xmin, long long de,
 struct bigfloat *rec_exp_2_min_frac(struct bigfloat *xmax, long long de,
 	long long dn, long long da)
 {
-	struct bigfloat *log2 = bf_log2_min();
+	//struct bigfloat *log2 = bf_log2_min();
+	struct bigfloat *log2 = bf_log2_max();
 	struct bigfloat *ymax = bf_mul(xmax, log2);
 	struct bigfloat *t, *res;
 
 	t = ymax;
-	ymax = bf_trunc(ymax, de);
+	//ymax = bf_trunc(ymax, de);
+	ymax = bf_round(ymax, de);
 	bf_destroy(t);
 
 	res = rec_exp_e_min_frac(ymax, dn, da);
@@ -227,12 +229,14 @@ struct bigfloat *rec_exp_2_min_frac(struct bigfloat *xmax, long long de,
 struct bigfloat *rec_exp_2_max_frac(struct bigfloat *xmin, long long de,
 	long long dn, long long da)
 {
-	struct bigfloat *log2 = bf_log2_max();
+	//struct bigfloat *log2 = bf_log2_max();
+	struct bigfloat *log2 = bf_log2_min();
 	struct bigfloat *ymin = bf_mul(xmin, log2);
 	struct bigfloat *res, *t;
 
 	t = ymin;
-	ymin = bf_round(ymin, de);
+	//ymin = bf_round(ymin, de);
+	ymin = bf_trunc(ymin, de);
 	bf_destroy(t);
 
 	res = rec_exp_e_max_frac(ymin, dn, da);

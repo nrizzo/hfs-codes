@@ -11,7 +11,7 @@
 #include "graph/graph.h"
 #include "interval/interval.h"
 
-#define DE -2 /* precisione cambio di base da 2 ad e */
+#define DE -3 /* precisione cambio di base da 2 ad e */
 #define DN 15 /* grado polinomio di MacLaurin */
 #define DA -2 /* precisione risultati parziali del polinomio */
 
@@ -34,8 +34,7 @@ int main()
 		G = graph_create(list);
 		graph_build(G);
 		graph_calcrack(G, DE, DN, DA);
-		bn_print_hex(u);
-		printf("\t%lld\n",interval_accuracy(G->xx->node->rcode));
+		printf("%"PRIu64"\t%lld\n",i,interval_accuracy(G->xx->node->rcode));
 
 		dllb_destroy(list);
 		graph_destroy(G);
