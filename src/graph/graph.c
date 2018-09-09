@@ -166,20 +166,10 @@ void graph_destroy(struct graph *G)
 static struct dl_list_b *children(struct node *v)
 {
 	struct dl_list_b *l = dllb_create();
-	struct bignat *c; /* contatore */
-	struct bignat *tbn;
-	struct bignat *code = v->code;
 
-	c = bn_fromuint64(bn_bits(code)-1);
-	for (int64_t i = bn_bits(code)-1; i >= 0; i--) {
-		if (bn_get(code, i)) {
-			l = dllb_add(l, c);
-			c = bn_pred(c);
-		} else {
-			tbn = c;
-			c = bn_pred(c);
-			bn_destroy(tbn);
-		}
+	for (uint64_t i = bn_bits(v->code) - 1; i < UINT64_MAX; i--) {
+		if (bn_get(v->code, i))
+			l = dllb_add(l, bn_fromuint64(i));
 	}
 
 	return l;
