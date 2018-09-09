@@ -250,14 +250,15 @@ struct bignat *bn_sub(struct bignat *u, struct bignat *v)
 
 struct bignat *bn_mul(struct bignat *u, struct bignat *v)
 {
+	struct bignat *w; /* risultato */
 	uint32_t j, i; /* indici */
-	struct bignat *w;
-	uint64_t t; /* risultato di due cifre */
+	uint64_t t; /* risultato moltiplicazione di due cifre */
 	uint32_t k; /* cifra più significativa di t */
 
 	w = malloc(sizeof(struct bignat));
 	w->n = u->n + v->n;
 	w->u = malloc(sizeof(uint32_t)*w->n);
+
 	for (uint32_t i = 0; i < w->n; i++)
 		w->u[i] = 0;
 

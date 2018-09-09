@@ -485,7 +485,7 @@ void bf_print(struct bigfloat *f)
 		printf("-");
 
 	bn_print(f->m);
-	printf("x(2^32)^%"PRId32"",f->e);
+	printf("x(2^32)^%"PRId64"",f->e);
 }
 
 void bf_print_hex(struct bigfloat *f)
@@ -496,7 +496,7 @@ void bf_print_hex(struct bigfloat *f)
 		printf("-");
 
 	bn_print_hex(f->m);
-	printf("x(2^32)^%"PRId32"",f->e);
+	printf("x(2^32)^%"PRId64"",f->e);
 }
 
 void bf_print_common_prefix(struct bigfloat *f, struct bigfloat *g)
@@ -525,7 +525,7 @@ void bf_print_common_prefix(struct bigfloat *f, struct bigfloat *g)
 	}
 
 	printf(" x ");
-	printf("(2^32)^%"PRId32"",f->e + f->m->n);
+	printf("(2^32)^%"PRId64"",f->e + f->m->n);
 }
 
 long long int bf_accuracy(struct bigfloat *f, struct bigfloat *g)
