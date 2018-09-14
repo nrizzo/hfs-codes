@@ -127,12 +127,9 @@ struct bigfloat *bf_add(struct bigfloat *f, struct bigfloat *g)
 		h->e = f->e;
 	}
 
-	if (f->sign == 1 && g->sign == 1) {
+	if (f->sign == g->sign) {
 		h->m = bn_add(u,v);
-		h->sign = 1;
-	} else if (f->sign == -1 && g->sign == -1) {
-		h->m = bn_add(u,v);
-		h->sign = -1;
+		h->sign = f->sign;
 	} else if (f->sign == 1) { /* g->sign == -1 */
 		if (bn_cmp(u,v) >= 0) {
 			h->m = bn_sub(u,v);
@@ -200,7 +197,16 @@ struct bigfloat *bf_trunc(struct bigfloat *f, long long int d)
 	if (d <= f->e)
 		return res;
 
-	if (res->sign == -1) { /* per difetto */
+	if (res->sign == 1) {
+		tbn = res->m;
+		res->m = bn_rshift(res->m, llabs(d - res->e));
+		bn_destroy(tbn);
+
+		res->e = d;
+
+		normalize(res);
+		return res;
+	} else { /* per difetto */
 		res->sign = 1;
 
 		tbf = res;
@@ -211,16 +217,6 @@ struct bigfloat *bf_trunc(struct bigfloat *f, long long int d)
 
 		return res;
 	}
-
-	/* res->sign == 1 */
-	tbn = res->m;
-	res->m = bn_rshift(res->m, llabs(d - res->e));
-	bn_destroy(tbn);
-
-	res->e = d;
-
-	normalize(res);
-	return res;
 }
 
 struct bigfloat *bf_round(struct bigfloat *f, long long int d)
@@ -233,7 +229,20 @@ struct bigfloat *bf_round(struct bigfloat *f, long long int d)
 	if (f->e >= d)
 		return res;
 
-	if (res->sign == -1) { /* per eccesso */
+	if (res->sign == 1) {
+		tbn = res->m;
+		res->m = bn_rshift(res->m, llabs(res->e - d));
+		bn_destroy(tbn);
+
+		res->e = d;
+
+		tbn = res->m;
+		res->m = bn_succ(res->m);
+		bn_destroy(tbn);
+
+		normalize(res);
+		return res;
+	} else { /* per eccesso */
 		res->sign = 1;
 
 		tbf = res;
@@ -244,19 +253,6 @@ struct bigfloat *bf_round(struct bigfloat *f, long long int d)
 
 		return res;
 	}
-
-	tbn = res->m;
-	res->m = bn_rshift(res->m, llabs(res->e - d));
-	bn_destroy(tbn);
-
-	res->e = d;
-
-	tbn = res->m;
-	res->m = bn_succ(res->m);
-	bn_destroy(tbn);
-
-	normalize(res);
-	return res;
 }
 
 struct bigfloat *bf_div_uint32_trunc(struct bigfloat *f, uint32_t i,
@@ -267,6 +263,17 @@ struct bigfloat *bf_div_uint32_trunc(struct bigfloat *f, uint32_t i,
 	struct bignat *tbn;
 
 	res = bf_copy(f);
+
+	if (f->sign == -1) {
+		res->sign = +1;
+
+		tbf = res;
+		res = bf_div_uint32_round(res, i, d);
+		bf_destroy(tbf);
+
+		res->sign = -1;
+		return res;
+	}
 
 	if (d < res->e) {
 		tbn = res->m;
@@ -308,6 +315,17 @@ struct bigfloat *bf_div_uint32_round(struct bigfloat *f, uint32_t i, long long i
 	struct bigfloat *res = bf_copy(f);
 	struct bigfloat *tbf;
 	struct bignat *tbn;
+
+	if (f->sign == -1) {
+		res->sign = +1;
+
+		tbf = res;
+		res = bf_div_uint32_trunc(res, i, d);
+		bf_destroy(tbf);
+
+		res->sign = -1;
+		return res;
+	}
 
 	if (d - 1 < res->e) {
 		tbn = res->m;

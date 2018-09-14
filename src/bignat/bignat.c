@@ -319,26 +319,25 @@ struct bignat *bn_scan()
 	return u;
 }
 
-struct bignat *bn_div_uint32(struct bignat *u, uint32_t n)
+struct bignat *bn_div_uint32(struct bignat *u, uint32_t a)
 {
-	struct bignat *res; /* risultato */
-	uint64_t d; /* resto parziale */
+	struct bignat *v; /* risultato */
+	uint64_t t; /* dividendo parziale */
+	uint32_t r; /* resto parziale */
 
-	res = malloc(sizeof(struct bignat));
-	res->n = u->n;
-	res->u = malloc(sizeof(uint32_t)*res->n);
+	v = malloc(sizeof(struct bignat));
+	v->n = u->n;
+	v->u = malloc(sizeof(uint32_t)*v->n);
 
-	d = 0;
-	for (uint32_t i = res->n - 1; i < UINT32_MAX; i--) {
-		d = d<<32;
-		d = d + u->u[i];
-
-		res->u[i] = (uint32_t) (d / (uint64_t) n);
-		d = d % (uint64_t) n;
+	r = 0;
+	for (uint32_t i = u->n - 1; i < UINT32_MAX; i--) {
+		t = ((uint64_t)r<<32) + u->u[i];
+		v->u[i] = (uint32_t) (t / a);
+		r = (uint32_t) (t % a);
 	}
 
-	normalize(res);
-	return res;
+	normalize(v);
+	return v;
 }
 
 uint32_t bn_rem_uint32(struct bignat *u, uint32_t n)
