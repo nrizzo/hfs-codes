@@ -5,8 +5,8 @@ CFLAGS = -pedantic
 OBJECTS = obj/bignat.o \
           obj/bigfloat.o \
           obj/interval.o \
-          obj/node.o \
-          obj/graph.o \
+          obj/memnode.o \
+          obj/memgraph.o \
           obj/list.o \
 
 MKDR = mkdir
@@ -28,10 +28,10 @@ obj/bigfloat.o: src/bigfloat/bigfloat.c
 	$(CC) -c src/bigfloat/bigfloat.c -o $@ $(CFLAGS)
 obj/interval.o: src/interval/interval.c
 	$(CC) -c src/interval/interval.c -o $@ $(CFLAGS)
-obj/node.o: src/graph/node/node.c
-	$(CC) -c src/graph/node/node.c -o $@ $(CFLAGS)
-obj/graph.o: src/graph/graph.c
-	$(CC) -c src/graph/graph.c -o $@ $(CFLAGS)
+obj/memnode.o: src/memgraph/memnode/memnode.c
+	$(CC) -c src/memgraph/memnode/memnode.c -o $@ $(CFLAGS)
+obj/memgraph.o: src/memgraph/memgraph.c
+	$(CC) -c src/memgraph/memgraph.c -o $@ $(CFLAGS)
 obj/list.o: src/list/list.c
 	$(CC) -c src/list/list.c -o $@ $(CFLAGS)
 

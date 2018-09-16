@@ -15,7 +15,7 @@
  * il suo codice di Ackermann e può venire salvata l'approssimazione del codice
  * della variante a valori reali della codifica di Ackermann.
  */
-struct node {
+struct memnode {
 	struct bignat *code; /* codice di Ackermann */
 
 	int indegree; /* numero di genitori */
@@ -26,44 +26,44 @@ struct node {
 };
 
 /*
- * node_create, dato il numero naturale rappresentato dal bignat u, crea il
+ * memnode_create, dato il numero naturale rappresentato dal bignat u, crea il
  * nodo del grafo corrispondente e ne restituisce il puntatore, senza archi; non
  * copia il bignat u ma ne salva il puntatore.
  */
-struct node *node_create(struct bignat *u);
+struct memnode *memnode_create(struct bignat *u);
 
 /*
- * node_addarc, dati i puntatori a due nodi x e y, aggiunge y alla lista di
+ * memnode_addarc, dati i puntatori a due nodi x e y, aggiunge y alla lista di
  * adiacenza di x.
  */
-void node_addarc(struct node *x, struct node *y);
+void memnode_addarc(struct memnode *x, struct memnode *y);
 
 /*
- * node_get, dato il nodo x, restituisce il puntatore al codice di Ackermann di
+ * memnode_get, dato il nodo x, restituisce il puntatore al codice di Ackermann di
  * x.
  */
-struct bignat *node_get(struct node *x);
+struct bignat *memnode_get(struct memnode *x);
 
 /*
- * node_indegree, dato il nodo x, restituisce il numero di archi entranti.
+ * memnode_indegree, dato il nodo x, restituisce il numero di archi entranti.
  */
-int node_indegree(struct node *x);
+int memnode_indegree(struct memnode *x);
 
 /*
- * node_outdegree, dato il nodo x, restituisce il numero di archi uscenti.
+ * memnode_outdegree, dato il nodo x, restituisce il numero di archi uscenti.
  */
-int node_outdegree(struct node *x);
+int memnode_outdegree(struct memnode *x);
 
 /*
- * node_adj, dato il nodo x, restituisce il puntatore alla sua lista di
+ * memnode_adj, dato il nodo x, restituisce il puntatore alla sua lista di
  * adiacenza.
  */
-struct dl_list_n *node_adj(struct node *x);
+struct dl_list_n *memnode_adj(struct memnode *x);
 
 /*
- * node_destroy libera lo spazio occupato dal nodo x, dal codice di Ackermann
+ * memnode_destroy libera lo spazio occupato dal nodo x, dal codice di Ackermann
  * e dall'approssimazione del codice della variante di Ackermann.
  */
-void node_destroy(struct node *x);
+void memnode_destroy(struct memnode *x);
 
 #endif /* NODEGUARD */

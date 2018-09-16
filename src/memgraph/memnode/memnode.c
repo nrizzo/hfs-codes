@@ -10,13 +10,13 @@
 #include "../../bignat/bignat.h"
 #include "../../list/list.h"
 #include "../../interval/interval.h"
-#include "node.h"
+#include "memnode.h"
 
-struct node *node_create(struct bignat *u)
+struct memnode *memnode_create(struct bignat *u)
 {
-	struct node *x;
+	struct memnode *x;
 
-	x = malloc(sizeof(struct node));
+	x = malloc(sizeof(struct memnode));
 	x->code = u;
 	x->indegree = 0;
 	x->outdegree = 0;
@@ -27,34 +27,34 @@ struct node *node_create(struct bignat *u)
 }
 
 
-void node_addarc(struct node *x, struct node *y)
+void memnode_addarc(struct memnode *x, struct memnode *y)
 {
 	x->outdegree += 1;
 	y->indegree += 1;
 	x->adj = dlln_add(x->adj, y);
 }
 
-int node_indegree(struct node *x)
+int memnode_indegree(struct memnode *x)
 {
 	return x->indegree;
 }
 
-int node_outdegree(struct node *x)
+int memnode_outdegree(struct memnode *x)
 {
 	return x->outdegree;
 }
 
-struct dl_list_n *node_adj(struct node *x)
+struct dl_list_n *memnode_adj(struct memnode *x)
 {
 	return x->adj;
 }
 
-struct bignat *node_get(struct node *x)
+struct bignat *memnode_get(struct memnode *x)
 {
 	return x->code;
 }
 
-void node_destroy(struct node *x)
+void memnode_destroy(struct memnode *x)
 {
 	bn_destroy(x->code);
 	if (x->rcode != NULL)

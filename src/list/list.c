@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "../graph/node/node.h"
+#include "../memgraph/memnode/memnode.h"
 #include "../bignat/bignat.h"
 #include "list.h"
 
@@ -9,7 +9,7 @@ struct dl_list_n *dlln_create()
 	return NULL; /* NULL rappresenta la lista vuota */
 }
 
-struct dl_list_n *dlln_add(struct dl_list_n *list, struct node *x)
+struct dl_list_n *dlln_add(struct dl_list_n *list, struct memnode *x)
 {
 	struct dl_list_n *newtail = malloc(sizeof(struct dl_list_n));
 
@@ -28,7 +28,7 @@ struct dl_list_n *dlln_add(struct dl_list_n *list, struct node *x)
 	}
 }
 
-struct dl_list_n *dlln_insert(struct dl_list_n *list, struct node *x,
+struct dl_list_n *dlln_insert(struct dl_list_n *list, struct memnode *x,
 	struct dl_list_n *el)
 {
 
@@ -77,7 +77,7 @@ struct dl_list_n *dlln_remove(struct dl_list_n *list, struct dl_list_n *el)
 	}
 }
 
-struct node *dlln_get(struct dl_list_n *el)
+struct memnode *dlln_get(struct dl_list_n *el)
 {
 	return el->node;
 }
@@ -200,6 +200,11 @@ struct dl_list_b *dllb_remove(struct dl_list_b *list, struct dl_list_b *el)
 		free(el);
 		return list;
 	}
+}
+
+void dllb_set(struct dl_list_b *el, struct bignat *u)
+{
+	el->u = u;
 }
 
 struct bignat *dllb_get(struct dl_list_b *el)
