@@ -4,49 +4,81 @@
  * Codice dell'algoritmo risolutivo.
  */
 
-#include <stdio.h>
+#include <stdio.h> /* printf, getchar */
+#include <ctype.h> /* isspace */
 
 #include "bignat/bignat.h"
 #include "list/list.h"
-#include "graph/graph.h"
+#include "memgraph/memgraph.h"
 #include "interval/interval.h"
 
 #define DE -3 /* precisione cambio di base da 2 ad e */
 #define DN 15 /* grado polinomio di MacLaurin */
 #define DA -2 /* precisione risultati parziali del polinomio */
 
+/* Funzioni ausiliarie */
+/* dllb_scanchildren legge dallo standard output i caratteri di un intero non
+ * negativo in notazione binaria, dal bit piu' significativo a quello meno
+ * significativo, creando la lista dei codici dei figli dell'insieme
+ * ereditariamente finito corrispondente; lo spazio occupato dalla lista va
+ * liberato da dllb_destroy, mentre quello occupato dai suoi elementi viene
+ * trattato dalle procedure del grafo. */
+struct dl_list_b *dllb_scanchildren();
+
 int main()
 {
-	struct dl_list_b *list;
-	struct graph *G;
-	struct bignat *u, *v, *tbn;
+	struct dl_list_b *list; /* lista dei figli di n */
+	struct memgraph *G; /* grafo di appartenenza di n */
 
-	// test accuratezza
-	/*u = bn_fromuint32(1);
-	v = bn_fromuint32(55);
-	for (uint64_t i = 0; i < 10000; i++) {
-		tbn = bn_copy(u);
-		u = bn_mul(u,v);
+	list = dllb_scanchildren();
 
-		list = dllb_create();
-		list = dllb_add(list, tbn);
+	G = memgraph_create(list);
+	memgraph_build(G);
+	memgraph_calcrack(G, DE, DN, DA);
 
-		G = graph_create(list);
-		graph_build(G);
-		graph_calcrack(G, DE, DN, DA);
-		printf("%"PRIu64"\t%lld\n",i,interval_accuracy(G->xx->node->rcode));
+	memgraph_printDOT(G);
+	interval_print(G->rcode); printf("\n");
 
-		dllb_destroy(list);
-		graph_destroy(G);
-	}*/
-
-	/* grafo di appartenenza di {h_n} */
-	list = dllb_create();
-	list = dllb_add(list, bn_scan());
-	G = graph_create(list);
-	graph_build(G);
-	graph_calcrack(G, DE, DN, DA);
-	graph_printDOT(G);
 	dllb_destroy(list);
-	graph_destroy(G);
+	memgraph_destroy(G);
+}
+
+/* Implementazione funzioni ausiliarie */
+struct dl_list_b *dllb_scanchildren()
+{
+	struct dl_list_b *l; /* risultato */
+	struct dl_list_b *scan;
+	struct bignat *i; /* contatore */
+	struct bignat *tbn;
+	int c; /* carattere corrente */
+
+	l = dllb_create();
+
+	i = bn_zero();
+	c = getchar();
+	while (!isspace(c) && c != EOF) {
+		if (c != '0')
+			l = dllb_add(l, bn_copy(i));
+
+		tbn = i;
+		i = bn_succ(i);
+		bn_destroy(tbn);
+
+		c = getchar();
+	}
+
+	tbn = i;
+	i = bn_pred(i);
+	bn_destroy(tbn);
+
+	scan = l;
+	while (!dllb_isempty(scan)) {
+		tbn = dllb_get(scan);
+		dllb_set(scan, bn_sub(i, dllb_get(scan)));
+		bn_destroy(tbn);
+
+		scan = dllb_next(scan);
+	}
+
+	return l;
 }
