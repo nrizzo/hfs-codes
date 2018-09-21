@@ -23,6 +23,7 @@ struct memnode {
 	struct dl_list_n *adj; /* lista di adiacenza */
 
 	struct interval *rcode; /* approssimazione variante di Ackermann */
+	struct interval *rsingleton; /* approssimazione variante singoletto */
 };
 
 /*

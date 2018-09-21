@@ -115,7 +115,10 @@ struct dl_list_n *dlln_prev(struct dl_list_n *el)
 
 struct dl_list_n *dlln_last(struct dl_list_n *list)
 {
-	return list->last;
+	if (list == NULL)
+		return NULL;
+	else
+		return list->last;
 }
 
 void dlln_destroy(struct dl_list_n *list)
@@ -245,7 +248,10 @@ struct dl_list_b *dllb_prev(struct dl_list_b *el)
 
 struct dl_list_b *dllb_last(struct dl_list_b *list)
 {
-	return list->last;
+	if (list == NULL)
+		return NULL;
+	else
+		return list->last;
 }
 
 void dllb_destroy(struct dl_list_b *list)

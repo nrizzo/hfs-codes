@@ -116,7 +116,7 @@ void memgraph_printDOT(struct memgraph *G)
 	struct dl_list_n *scan;
 	struct dl_list_n *scanx, *scany;
 
-	printf("dimemgraph G_T {\n");
+	printf("digraph G_T {\n");
 
 	/* vertici */
 	scan = G->V;
@@ -223,13 +223,10 @@ static struct dl_list_n *join(struct dl_list_n *V, struct memnode *x,
 static void calcrack(struct memnode *x, long long de, long long dn,
 	long long da)
 {
-	if (x->rcode != NULL)
-		return;
-
-	struct interval *res;
-	struct interval *i, *t;
-	struct dl_list_n *l;
-	struct memnode *y;
+	struct interval *res; /* risultato */
+	struct interval *ti;
+	struct dl_list_n *l; /* lista di adiacenza di x */
+	struct memnode *y; /* figlio di x  */
 
 	res = interval_zero();
 
@@ -242,13 +239,13 @@ static void calcrack(struct memnode *x, long long de, long long dn,
 	while (!dlln_isempty(l)) {
 		y = dlln_get(l);
 
-		i = interval_rec_exp_2(y->rcode, de, dn, da);
+		if (y->rsingleton == NULL)
+			y->rsingleton = interval_rec_exp_2(y->rcode,de,dn,da);
 
-		t = res;
-		res = interval_add(res, i);
-		interval_destroy(t);
+		ti = res;
+		res = interval_add(res, y->rsingleton);
+		interval_destroy(ti);
 
-		interval_destroy(i);
 		l = dlln_next(l);
 	}
 
@@ -258,10 +255,10 @@ static void calcrack(struct memnode *x, long long de, long long dn,
 static struct interval *dlln_calcrack(struct dl_list_n *l, long long de,
 	long long dn, long long da)
 {
-	struct interval *res;
+	struct interval *res; /* risultato */
+	struct interval *ti;
 	struct dl_list_n *scan;
-	struct interval *i, *ti;
-	struct memnode *x;
+	struct memnode *x; /* figlio di h_n */
 
 	res = interval_zero();
 
@@ -269,13 +266,12 @@ static struct interval *dlln_calcrack(struct dl_list_n *l, long long de,
 	while (!dlln_isempty(scan)) {
 		x = dlln_get(scan);
 
-		i = interval_rec_exp_2(x->rcode, de, dn, da);
+		if (x->rsingleton == NULL)
+			x->rsingleton = interval_rec_exp_2(x->rcode,de,dn,da);
 
 		ti = res;
-		res = interval_add(res, i);
+		res = interval_add(res, x->rsingleton);
 		interval_destroy(ti);
-
-		interval_destroy(i);
 
 		scan = dlln_next(scan);
 	}

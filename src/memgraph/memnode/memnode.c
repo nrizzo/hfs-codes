@@ -21,7 +21,9 @@ struct memnode *memnode_create(struct bignat *u)
 	x->indegree = 0;
 	x->outdegree = 0;
 	x->adj = dlln_create();
+
 	x->rcode = NULL;
+	x->rsingleton = NULL;
 
 	return x;
 }
@@ -59,6 +61,8 @@ void memnode_destroy(struct memnode *x)
 	bn_destroy(x->code);
 	if (x->rcode != NULL)
 		interval_destroy(x->rcode);
+	if (x->rsingleton != NULL)
+		interval_destroy(x->rsingleton);
 	dlln_destroy(x->adj);
 	free(x);
 }
