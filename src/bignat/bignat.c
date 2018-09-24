@@ -251,7 +251,6 @@ struct bignat *bn_sub(struct bignat *u, struct bignat *v)
 struct bignat *bn_mul(struct bignat *u, struct bignat *v)
 {
 	struct bignat *w; /* risultato */
-	uint32_t j, i; /* indici */
 	uint64_t t; /* risultato moltiplicazione di due cifre */
 	uint32_t k; /* cifra più significativa di t */
 
@@ -263,7 +262,6 @@ struct bignat *bn_mul(struct bignat *u, struct bignat *v)
 		w->u[i] = 0;
 
 	for (uint32_t j = 0; j < v->n; j++) {
-		// TODO: zero multiplier (M2)
 		k = 0;
 		for (uint32_t i = 0; i < u->n; i++) {
 			t = (uint64_t) u->u[i] * (uint64_t) v->u[j] +
@@ -271,52 +269,11 @@ struct bignat *bn_mul(struct bignat *u, struct bignat *v)
 			w->u[i+j] = (uint32_t) t;
 			k = (uint32_t) (t>>32);
 		}
-
 		w->u[j + u->n] = k;
 	}
 
 	normalize(w);
 	return w;
-}
-
-void bn_print(struct bignat *u)
-{
-	for (uint64_t i = bn_bits(u) - 1; i > 0; i--)
-		putchar('0' + bn_get(u,i));
-
-	putchar('0' + bn_get(u,0));
-}
-
-void bn_print_hex(struct bignat *u)
-{
-	for (uint32_t i = u->n-1; i > 0; i--)
-		printf("%.8" PRIX32 " ", u->u[i]);
-
-	printf("%.8" PRIX32, u->u[0]);
-}
-
-struct bignat *bn_scan()
-{
-	struct bignat *u = bn_zero();
-	struct bignat *two = bn_fromuint32(2);
-	struct bignat *one = bn_fromuint32(1);
-	struct bignat *t;
-	int c; /* carattere letto */
-
-	c = getchar();
-	while (c != EOF && c != '\n') {
-		t = bn_mul(u,two); bn_destroy(u); u = t;
-
-		if (c != '0') {
-			t = bn_add(u,one); bn_destroy(u); u = t;
-		}
-
-		c = getchar();
-	}
-
-	bn_destroy(two);
-	bn_destroy(one);
-	return u;
 }
 
 struct bignat *bn_div_uint32(struct bignat *u, uint32_t a)
@@ -396,6 +353,46 @@ char bn_remcheck_uint32(struct bignat *u, uint32_t n)
 	bn_destroy(qq);
 
 	return (d != 0);
+}
+
+void bn_print(struct bignat *u)
+{
+	for (uint64_t i = bn_bits(u) - 1; i > 0; i--)
+		putchar('0' + bn_get(u,i));
+
+	putchar('0' + bn_get(u,0));
+}
+
+void bn_print_hex(struct bignat *u)
+{
+	for (uint32_t i = u->n-1; i > 0; i--)
+		printf("%.8" PRIX32 " ", u->u[i]);
+
+	printf("%.8" PRIX32, u->u[0]);
+}
+
+struct bignat *bn_scan()
+{
+	struct bignat *u = bn_zero();
+	struct bignat *two = bn_fromuint32(2);
+	struct bignat *one = bn_fromuint32(1);
+	struct bignat *t;
+	int c; /* carattere letto */
+
+	c = getchar();
+	while (c != EOF && c != '\n') {
+		t = bn_mul(u,two); bn_destroy(u); u = t;
+
+		if (c != '0') {
+			t = bn_add(u,one); bn_destroy(u); u = t;
+		}
+
+		c = getchar();
+	}
+
+	bn_destroy(two);
+	bn_destroy(one);
+	return u;
 }
 
 void bn_destroy(struct bignat *u)
