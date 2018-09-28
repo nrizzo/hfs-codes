@@ -192,7 +192,7 @@ static struct dl_list_n *join(struct dl_list_n *V, struct memnode *x,
 	/* l lista dei codici dei figli di x (decrescenti) */
 	struct dl_list_n *scanV;
 	struct dl_list_b *scanl;
-	struct memnode *y;
+	struct memnode *y, *z;
 
 	if (dllb_isempty(l))
 		return V;
@@ -207,8 +207,11 @@ static struct dl_list_n *join(struct dl_list_n *V, struct memnode *x,
 			scanl = dllb_prev(scanl);
 		} else if (bn_cmp(memnode_get(y), dllb_get(scanl)) >= 0) {
 			/* il vertice non esiste */
-			V = dlln_insert(V, memnode_create(dllb_get(scanl)), scanV);
+			z = memnode_create(dllb_get(scanl));
+			V = dlln_insert(V, z, scanV);
+
 			memnode_addarc(x,dlln_get(dlln_next(scanV)));
+
 			scanl = dllb_prev(scanl);
 		} else {
 			/* non è figlio di x */
