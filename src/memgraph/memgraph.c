@@ -204,7 +204,10 @@ static struct dl_list_n *join(struct dl_list_n *V, struct memnode *x,
 		if (bn_cmp(memnode_get(y), dllb_get(scanl)) == 0) {
 			/* il vertice esiste già */
 			memnode_addarc(x,y);
+
 			scanl = dllb_prev(scanl);
+			scanV = dlln_prev(scanV);
+			y = dlln_get(scanV);
 		} else if (bn_cmp(memnode_get(y), dllb_get(scanl)) >= 0) {
 			/* il vertice non esiste */
 			z = memnode_create(dllb_get(scanl));
